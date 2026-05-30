@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Soporte Concurrente</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 1.2rem;
+            color: #2980b9;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+
+        input,
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        button:hover {
+            background-color: #2ecc71;
+        }
+
+        /* Cajas de estado en tiempo real */
+        .status-box {
+            background-color: #e8f8f5;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            margin-top: auto;
+            border: 1px solid #d1f2eb;
+        }
+
+        .status-title {
+            font-weight: bold;
+            color: #16a085;
+            margin-bottom: 5px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        li {
+            background: #fdf2e9;
+            margin-bottom: 5px;
+            padding: 6px;
+            border-radius: 4px;
+            border-left: 4px solid #e67e22;
+        }
+
+        .ticket-item {
+            background: #ebf5fb;
+            border-left: 4px solid #3498db;
+        }
+
+        .silla-vacia {
+            color: green;
+            font-weight: bold;
+        }
+
+        .silla-ocupada {
+            color: red;
+            font-weight: bold;
+        }
+
+        .alerta {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+            /* Oculto por defecto */
+        }
+
+        .alerta.exito {
+            background-color: #dff0d8;
+            color: #3c763d;
+            border: 1px solid #d6e9c6;
+            display: block;
+        }
+
+        .alerta.error {
+            background-color: #f2dede;
+            color: #a94442;
+            border: 1px solid #ebccd1;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Panel de Control de Soporte</h1>
+
+    <div class="container">
+
+        <div class="card">
+            <h2>Chat en Vivo (Barbero)</h2>
+            <label for="chatId">ID del Cliente:</label>
+            <input type="number" id="chatId" value="1" min="1">
+            <button onclick="entrarAlChat()">Simular Entrada de Cliente</button>
+            <div id="alertaChat" class="alerta">
+                <button onclick="entrarAlChat()">Simular Entrada de Cliente</button>
+                <div id="alertaChat" class="alerta"></div>
+            </div>
+
+            <div class="status-box">
+                <div class="status-title">Estado en Tiempo Real</div>
+                <div id="agenteStatus">Agente: Cargando...</div>
+                <div style="margin-top: 10px;">Sala de espera:</div>
+                <ul id="listaSillas">
+                    <li>Cargando sillas...</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Tickets (Productor/Consumidor)</h2>
+            <label for="ticketMsg">Mensaje del Ticket:</label>
+            <input type="text" id="ticketMsg" placeholder="Ej: Error de conexión">
+            <button onclick="enviarTicket()">Enviar Ticket Rápido</button>
+            <div id="alertaTicket" class="alerta">
+                <button onclick="enviarTicket()">Enviar Ticket Rápido</button>
+                <div id="alertaTicket" class="alerta"></div>
+            </div>
+
+            <div class="status-box">
+                <div class="status-title">Estado en Tiempo Real</div>
+                <div id="backendStatus">Consumidor: Cargando...</div>
+                <div style="margin-top: 10px;">En Cola (<span id="espacioCola">0</span> libres):</div>
+                <ul id="listaTickets">
+                    <li>Cargando cola...</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Mesa de Expertos (Filósofos)</h2>
+            <div class="status-box" style="margin-top: 0;">
+                <div class="status-title">Estado en Tiempo Real</div>
+                <ul id="listaExpertos">
+                    <li>Cargando estado...</li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Función auxiliar para mostrar y ocultar mensajes
+        function mostrarMensaje(elementoId, mensaje) {
+            const div = document.getElementById(elementoId);
+            div.innerText = mensaje;
+
+            // Si el mensaje tiene palabras clave de error, lo pintamos de rojo, si no, de verde
+            if (mensaje.includes("rechazado") || mensaje.includes("saturado")) {
+                div.className = "alerta error";
+            } else {
+                div.className = "alerta exito";
+            }
+
+            // Ocultar el mensaje después de 3 segundos
+            setTimeout(() => {
+                div.className = "alerta";
+            }, 3000);
+        }
+
+        // 1. Lógica del Chat Modificada
+        function entrarAlChat() {
+            const id = document.getElementById('chatId').value;
+            fetch(`/chat?id=${id}`)
+                .then(response => response.text()) // Capturamos la respuesta del backend
+                .then(mensajeBackend => {
+                    mostrarMensaje('alertaChat', mensajeBackend);
+                    document.getElementById('chatId').value = parseInt(id) + 1;
+                    actualizarTodo();
+                });
+        }
+
+        // 2. Lógica de los Tickets Modificada
+        function enviarTicket() {
+            const msg = document.getElementById('ticketMsg').value;
+            if (!msg) return;
+            fetch(`/ticket?mensaje=${encodeURIComponent(msg)}`)
+                .then(response => response.text()) // Capturamos la respuesta del backend
+                .then(mensajeBackend => {
+                    mostrarMensaje('alertaTicket', mensajeBackend);
+                    document.getElementById('ticketMsg').value = '';
+                    actualizarTodo();
+                });
+        }
+
+        // --- FUNCIONES DE POLLING (TIEMPO REAL) ---
+
+        function actualizarChat() {
+            fetch('/estado-chat')
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('agenteStatus').innerHTML = `<b>Agente:</b> ${data.estadoAgente}`;
+
+                    const lista = document.getElementById('listaSillas');
+                    lista.innerHTML = '';
+
+                    let sillasOcupadas = data.sillasTotales - data.sillasLibres;
+
+                    // Dibujamos las sillas ocupadas
+                    for (let i = 0; i < sillasOcupadas; i++) {
+                        lista.innerHTML += `<li>🪑 Silla ${i + 1}: <span class="silla-ocupada">Ocupada (Esperando)</span></li>`;
+                    }
+                    // Dibujamos las sillas vacías
+                    for (let i = sillasOcupadas; i < data.sillasTotales; i++) {
+                        lista.innerHTML += `<li>🪑 Silla ${i + 1}: <span class="silla-vacia">Vacía</span></li>`;
+                    }
+                });
+        }
+
+        function actualizarTickets() {
+            fetch('/estado-tickets')
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('backendStatus').innerHTML = `<b>Consumidor:</b> ${data.estadoConsumidor}`;
+                    document.getElementById('espacioCola').innerText = data.espacioDisponible;
+
+                    const lista = document.getElementById('listaTickets');
+                    lista.innerHTML = '';
+
+                    if (data.ticketsEnCola.length === 0) {
+                        lista.innerHTML = '<li><i>Cola vacía</i></li>';
+                    } else {
+                        data.ticketsEnCola.forEach(ticket => {
+                            lista.innerHTML += `<li class="ticket-item">🎫 ${ticket}</li>`;
+                        });
+                    }
+                });
+        }
+
+        function actualizarExpertos() {
+            fetch('/expertos')
+                .then(r => r.json())
+                .then(data => {
+                    const lista = document.getElementById('listaExpertos');
+                    lista.innerHTML = '';
+                    data.forEach(estado => {
+                        lista.innerHTML += `<li>${estado}</li>`;
+                    });
+                });
+        }
+
+        // Agrupamos todas las actualizaciones
+        function actualizarTodo() {
+            actualizarChat();
+            actualizarTickets();
+            actualizarExpertos();
+        }
+
+        // Llama a todo cada 1 segundo
+        setInterval(actualizarTodo, 1000);
+        actualizarTodo(); // Primera llamada inmediata
+    </script>
+</body>
+
+</html>
