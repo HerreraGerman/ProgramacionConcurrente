@@ -24,6 +24,7 @@ public class SoporteController {
         this.resolucionCompleja = resolucionCompleja;
     }
 
+    // Endpoints para interactuar con los servicios
     @GetMapping("/chat")
     public String solicitarChat(@RequestParam int id) {
         return liveChat.nuevoClienteWeb(id);

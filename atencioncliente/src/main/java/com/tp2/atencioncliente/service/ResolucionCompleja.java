@@ -16,6 +16,7 @@ public class ResolucionCompleja {
     // Almacena el estado de cada agente de forma segura para hilos
     private final AtomicReferenceArray<String> estadosAgentes = new AtomicReferenceArray<>(NUM_AGENTES);
 
+    // Constructor que inicializa los locks y los estados de los agentes
     public ResolucionCompleja() {
         for (int i = 0; i < NUM_AGENTES; i++) {
             basesDeDatos[i] = new ReentrantLock();
@@ -23,6 +24,7 @@ public class ResolucionCompleja {
         }
     }
 
+    // Método que inicia los hilos de los agentes para resolver casos complejos
     @PostConstruct
     public void iniciarTurnoDeResolucion() {
         for (int i = 0; i < NUM_AGENTES; i++) {
@@ -65,7 +67,7 @@ public class ResolucionCompleja {
         }
     }
 
-    // Método que llamará el controlador para obtener la foto del momento
+    // Método que llamará el controlador para obtener el estado de los agentes
     public String[] obtenerEstadosDeAgentes() {
         String[] copiaEstados = new String[NUM_AGENTES];
         for (int i = 0; i < NUM_AGENTES; i++) {

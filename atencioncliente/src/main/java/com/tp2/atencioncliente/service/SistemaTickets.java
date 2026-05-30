@@ -15,6 +15,7 @@ public class SistemaTickets {
     // Estado del trabajador de tickets
     private volatile String estadoConsumidor = "Inactivo (Esperando tickets) ⏳";
 
+    // Constructor que inicia el hilo consumidor para procesar los tickets
     public SistemaTickets() {
         Thread consumidor = new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
@@ -33,6 +34,7 @@ public class SistemaTickets {
         consumidor.start();
     }
 
+    // Método que llamará el controlador para recibir un nuevo ticket desde la web
     public String recibirFormularioWeb(String contenidoTicket) {
         boolean encolado = colaTickets.offer(contenidoTicket);
         if (encolado) {
@@ -42,6 +44,7 @@ public class SistemaTickets {
         }
     }
 
+    // Método que llamará el controlador para obtener el estado del sistema de tickets
     public Map<String, Object> obtenerEstado() {
         Map<String, Object> estado = new HashMap<>();
         estado.put("ticketsEnCola", new ArrayList<>(colaTickets)); // Convertimos la cola a Lista para JSON

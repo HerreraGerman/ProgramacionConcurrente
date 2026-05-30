@@ -17,6 +17,7 @@ public class SoporteLiveChat {
     private final Semaphore agente = new Semaphore(0);
     private final Semaphore mutex = new Semaphore(1);
 
+    // Constructor que inicia el hilo del agente para atender a los clientes
     public SoporteLiveChat() {
         Thread hiloAgente = new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
@@ -41,6 +42,7 @@ public class SoporteLiveChat {
         hiloAgente.start();
     }
 
+    // Método que llamará el controlador para simular la llegada de un nuevo cliente al chat
     public String nuevoClienteWeb(int idCliente) {
         try {
             mutex.acquire();
@@ -66,6 +68,7 @@ public class SoporteLiveChat {
         }
     }
 
+    // Método que llamará el controlador para obtener el estado actual del chat
     public Map<String, Object> obtenerEstado() {
         Map<String, Object> estado = new HashMap<>();
         estado.put("sillasLibres", sillasDisponibles);
