@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 public class SistemaTickets {
     private final BlockingQueue<String> colaTickets = new ArrayBlockingQueue<>(5);
     
-    // NUEVO: Estado del trabajador de tickets
+    // Estado del trabajador de tickets
     private volatile String estadoConsumidor = "Inactivo (Esperando tickets) ⏳";
 
     public SistemaTickets() {
