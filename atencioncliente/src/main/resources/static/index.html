@@ -4,312 +4,331 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard de Soporte Concurrente</title>
+    <title>AutoDiag OS - Taller Mecánico</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
-            margin: 0;
-            padding: 20px;
+        /* Animaciones personalizadas suaves */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
         }
 
-        h1 {
-            text-align: center;
-            color: #2c3e50;
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
+        /* Estilo para la barra de progreso */
+        progress::-webkit-progress-bar {
+            background-color: #334155;
+            border-radius: 9999px;
         }
 
-        .card {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            width: 320px;
-            display: flex;
-            flex-direction: column;
+        progress::-webkit-progress-value {
+            background-color: #3b82f6;
+            border-radius: 9999px;
+            transition: width 0.3s ease;
         }
 
-        .card h2 {
-            margin-top: 0;
-            font-size: 1.2rem;
-            color: #2980b9;
-            border-bottom: 2px solid #ecf0f1;
-            padding-bottom: 10px;
-        }
-
-        input,
-        button {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-
-        button {
-            background-color: #27ae60;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-
-        button:hover {
-            background-color: #2ecc71;
-        }
-
-        /* Cajas de estado en tiempo real */
-        .status-box {
-            background-color: #e8f8f5;
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            margin-top: auto;
-            border: 1px solid #d1f2eb;
-        }
-
-        .status-title {
-            font-weight: bold;
-            color: #16a085;
-            margin-bottom: 5px;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-        }
-
-        ul {
-            list-style-type: none;
-            padding: 0;
-            font-size: 0.9rem;
-            margin: 0;
-        }
-
-        li {
-            background: #fdf2e9;
-            margin-bottom: 5px;
-            padding: 6px;
-            border-radius: 4px;
-            border-left: 4px solid #e67e22;
-        }
-
-        .ticket-item {
-            background: #ebf5fb;
-            border-left: 4px solid #3498db;
-        }
-
-        .silla-vacia {
-            color: green;
-            font-weight: bold;
-        }
-
-        .silla-ocupada {
-            color: red;
-            font-weight: bold;
-        }
-
-        .alerta {
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            text-align: center;
-            font-weight: bold;
-            display: none;
-            /* Oculto por defecto */
-        }
-
-        .alerta.exito {
-            background-color: #dff0d8;
-            color: #3c763d;
-            border: 1px solid #d6e9c6;
-            display: block;
-        }
-
-        .alerta.error {
-            background-color: #f2dede;
-            color: #a94442;
-            border: 1px solid #ebccd1;
-            display: block;
+        progress.saturado::-webkit-progress-value {
+            background-color: #ef4444;
         }
     </style>
 </head>
 
-<body>
+<body
+    class="bg-slate-900 text-slate-300 h-screen flex overflow-hidden font-sans selection:bg-blue-500 selection:text-white">
 
-    <h1>Panel de Control de Soporte</h1>
-
-    <div class="container">
-
-        <div class="card">
-            <h2>Chat en Vivo (Barbero)</h2>
-            <label for="chatId">ID del Cliente:</label>
-            <input type="number" id="chatId" value="1" min="1">
-            <button onclick="entrarAlChat()">Simular Entrada de Cliente</button>
-            <div id="alertaChat" class="alerta">
-                <button onclick="entrarAlChat()">Simular Entrada de Cliente</button>
-                <div id="alertaChat" class="alerta"></div>
+    <aside
+        class="w-20 lg:w-64 bg-slate-950 border-r border-slate-800 flex flex-col justify-between transition-all duration-300">
+        <div>
+            <div class="h-16 flex items-center justify-center lg:justify-start lg:px-6 border-b border-slate-800">
+                <i class="fa-solid fa-gear text-blue-500 text-2xl animate-[spin_4s_linear_infinite]"></i>
+                <span class="ml-3 font-bold text-white text-lg tracking-wide hidden lg:block">AutoDiag OS</span>
             </div>
-
-            <div class="status-box">
-                <div class="status-title">Estado en Tiempo Real</div>
-                <div id="agenteStatus">Agente: Cargando...</div>
-                <div style="margin-top: 10px;">Sala de espera:</div>
-                <ul id="listaSillas">
-                    <li>Cargando sillas...</li>
-                </ul>
+            <nav class="mt-6 flex flex-col gap-2 px-3">
+                <a href="#"
+                    class="flex items-center px-3 py-3 bg-blue-600/10 text-blue-400 rounded-lg border border-blue-500/20">
+                    <i class="fa-solid fa-chart-line text-lg w-6 text-center"></i>
+                    <span class="ml-3 hidden lg:block font-medium">Dashboard</span>
+                </a>
+                <a href="#"
+                    class="flex items-center px-3 py-3 text-slate-500 hover:text-slate-300 hover:bg-slate-800 rounded-lg transition-colors">
+                    <i class="fa-solid fa-users text-lg w-6 text-center"></i>
+                    <span class="ml-3 hidden lg:block font-medium">Clientes</span>
+                </a>
+                <a href="#"
+                    class="flex items-center px-3 py-3 text-slate-500 hover:text-slate-300 hover:bg-slate-800 rounded-lg transition-colors">
+                    <i class="fa-solid fa-box text-lg w-6 text-center"></i>
+                    <span class="ml-3 hidden lg:block font-medium">Repuestos</span>
+                </a>
+            </nav>
+        </div>
+        <div class="p-4 border-t border-slate-800 flex items-center justify-center lg:justify-start">
+            <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center overflow-hidden">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Avatar" class="w-full h-full">
+            </div>
+            <div class="ml-3 hidden lg:block text-sm">
+                <p class="text-white font-medium">Admin Sistema</p>
+                <p class="text-slate-500 text-xs">Jefe de Taller</p>
             </div>
         </div>
+    </aside>
 
-        <div class="card">
-            <h2>Tickets (Productor/Consumidor)</h2>
-            <label for="ticketMsg">Mensaje del Ticket:</label>
-            <input type="text" id="ticketMsg" placeholder="Ej: Error de conexión">
-            <button onclick="enviarTicket()">Enviar Ticket Rápido</button>
-            <div id="alertaTicket" class="alerta">
-                <button onclick="enviarTicket()">Enviar Ticket Rápido</button>
-                <div id="alertaTicket" class="alerta"></div>
+    <main class="flex-1 flex flex-col h-full relative">
+        <header
+            class="h-16 bg-slate-900/80 backdrop-blur border-b border-slate-800 flex items-center justify-between px-6 z-10">
+            <h1 class="text-xl font-semibold text-white">Monitor de Operaciones</h1>
+            <div class="flex items-center gap-4 text-slate-400">
+                <i class="fa-solid fa-bell hover:text-white cursor-pointer transition-colors"></i>
+                <i class="fa-solid fa-magnifying-glass hover:text-white cursor-pointer transition-colors"></i>
             </div>
+        </header>
 
-            <div class="status-box">
-                <div class="status-title">Estado en Tiempo Real</div>
-                <div id="backendStatus">Consumidor: Cargando...</div>
-                <div style="margin-top: 10px;">En Cola (<span id="espacioCola">0</span> libres):</div>
-                <ul id="listaTickets">
-                    <li>Cargando cola...</li>
-                </ul>
+        <div class="flex-1 overflow-y-auto p-6">
+            <div class="max-w-7xl mx-auto grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+                <div class="bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg flex flex-col">
+                    <div class="flex items-center justify-between mb-4 border-b border-slate-700 pb-3">
+                        <h2 class="text-lg font-medium text-white flex items-center gap-2">
+                            <i class="fa-solid fa-user-headset text-indigo-400"></i> Mesa de Entrada
+                        </h2>
+                    </div>
+
+                    <div class="flex gap-2 mb-4">
+                        <input type="number" id="chatId" value="1" min="1"
+                            class="w-20 bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+                        <button onclick="entrarAlChat()"
+                            class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded py-2 transition-colors flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-door-open"></i> Asignar Turno
+                        </button>
+                    </div>
+                    <div id="alertaChat" class="text-sm font-medium text-center rounded p-2 mb-4 hidden"></div>
+
+                    <div class="mt-auto bg-slate-900/50 rounded-lg p-4 border border-slate-700/50">
+                        <div id="agenteStatus" class="text-sm font-medium text-slate-300 mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-circle-notch fa-spin text-indigo-400"></i> Asesor: Cargando...
+                        </div>
+                        <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-2">Sala de Espera
+                            (Turnos rápidos)</p>
+                        <ul id="listaSillas" class="space-y-2">
+                            <li class="text-sm text-slate-500">Cargando...</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="xl:col-span-2 bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg flex flex-col">
+                    <div class="flex items-center justify-between mb-4 border-b border-slate-700 pb-3">
+                        <h2 class="text-lg font-medium text-white flex items-center gap-2">
+                            <i class="fa-solid fa-clipboard-list text-blue-400"></i> Órdenes de Trabajo (Cola)
+                        </h2>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-3 mb-2">
+                        <input type="text" id="ticketMsg"
+                            placeholder="Ej: Fiat 147 naftero hace un chirrido de correa..."
+                            class="flex-1 bg-slate-900 border border-slate-600 rounded px-4 py-2 text-white focus:outline-none focus:border-blue-500">
+                        <button onclick="enviarTicket()"
+                            class="bg-blue-600 hover:bg-blue-500 text-white font-medium rounded px-6 py-2 transition-colors whitespace-nowrap">
+                            <i class="fa-solid fa-paper-plane mr-2"></i> Ingresar Vehículo
+                        </button>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 mb-4 text-xs">
+                        <span class="text-slate-500 py-1">Rápidos:</span>
+                        <button
+                            onclick="document.getElementById('ticketMsg').value='Chirrido de correa al prender el motor'"
+                            class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-1 rounded-full transition-colors">Correa</button>
+                        <button
+                            onclick="document.getElementById('ticketMsg').value='El indicador de combustible está desfasado'"
+                            class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-1 rounded-full transition-colors">Sensor
+                            Nafta</button>
+                        <button onclick="document.getElementById('ticketMsg').value='Alinear luces delanteras'"
+                            class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-1 rounded-full transition-colors">Luces</button>
+                    </div>
+
+                    <div id="alertaTicket" class="text-sm font-medium text-center rounded p-2 mb-4 hidden"></div>
+
+                    <div class="mt-auto bg-slate-900/50 rounded-lg p-4 border border-slate-700/50">
+                        <div class="flex justify-between items-center mb-2">
+                            <div id="backendStatus" class="text-sm font-medium text-slate-300">
+                                <i class="fa-solid fa-wrench text-blue-400 mr-2"></i> Mecánico asignado: Cargando...
+                            </div>
+                            <span class="text-xs text-slate-400">Capacidad: <span id="espacioCola"
+                                    class="font-bold text-white">0</span> libres</span>
+                        </div>
+
+                        <progress id="barraCola" value="0" max="5" class="w-full h-2 mb-4"></progress>
+
+                        <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-2">Vehículos en cola:
+                        </p>
+                        <ul id="listaTickets" class="space-y-2 min-h-[60px]">
+                            <li class="text-sm text-slate-500">Cargando...</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="xl:col-span-3 bg-slate-800 border border-slate-700 rounded-xl p-5 shadow-lg flex flex-col">
+                    <div class="flex items-center justify-between mb-4 border-b border-slate-700 pb-3">
+                        <h2 class="text-lg font-medium text-white flex items-center gap-2">
+                            <i class="fa-solid fa-microchip text-emerald-400"></i> Área de Diagnóstico Complejo (Escáner
+                            y Elevadores)
+                        </h2>
+                        <span
+                            class="flex items-center gap-2 text-xs text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-full border border-emerald-400/20">
+                            <span class="relative flex h-2 w-2">
+                                <span
+                                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                            </span>
+                            Live
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4" id="gridExpertos">
+                        <div class="text-sm text-slate-500 text-center col-span-full py-4">Cargando estado de
+                            mecánicos...</div>
+                    </div>
+                </div>
+
             </div>
         </div>
-
-        <div class="card">
-            <h2>Mesa de Expertos (Filósofos)</h2>
-            <div class="status-box" style="margin-top: 0;">
-                <div class="status-title">Estado en Tiempo Real</div>
-                <ul id="listaExpertos">
-                    <li>Cargando estado...</li>
-                </ul>
-            </div>
-        </div>
-
-    </div>
+    </main>
 
     <script>
-        // Función auxiliar para mostrar y ocultar mensajes
         function mostrarMensaje(elementoId, mensaje) {
             const div = document.getElementById(elementoId);
             div.innerText = mensaje;
+            div.style.display = 'block';
+            div.classList.add('fade-in');
 
-            // Si el mensaje tiene palabras clave de error, lo pintamos de rojo, si no, de verde
-            if (mensaje.includes("rechazado") || mensaje.includes("saturado")) {
-                div.className = "alerta error";
+            if (mensaje.toLowerCase().includes("rechazado") || mensaje.toLowerCase().includes("saturado") || mensaje.toLowerCase().includes("error")) {
+                div.className = "text-sm font-medium text-center rounded p-2 mb-4 bg-red-900/50 text-red-300 border border-red-800 fade-in";
             } else {
-                div.className = "alerta exito";
+                div.className = "text-sm font-medium text-center rounded p-2 mb-4 bg-emerald-900/50 text-emerald-300 border border-emerald-800 fade-in";
             }
 
-            // Ocultar el mensaje después de 3 segundos
-            setTimeout(() => {
-                div.className = "alerta";
-            }, 3000);
+            setTimeout(() => { div.style.display = 'none'; }, 3000);
         }
 
-        // 1. Lógica del Chat Modificada
         function entrarAlChat() {
             const id = document.getElementById('chatId').value;
             fetch(`/chat?id=${id}`)
-                .then(response => response.text()) // Capturamos la respuesta del backend
-                .then(mensajeBackend => {
-                    mostrarMensaje('alertaChat', mensajeBackend);
+                .then(r => r.text())
+                .then(msg => {
+                    mostrarMensaje('alertaChat', msg);
                     document.getElementById('chatId').value = parseInt(id) + 1;
                     actualizarTodo();
-                });
+                }).catch(() => mostrarMensaje('alertaChat', 'Error de conexión.'));
         }
 
-        // 2. Lógica de los Tickets Modificada
         function enviarTicket() {
             const msg = document.getElementById('ticketMsg').value;
             if (!msg) return;
             fetch(`/ticket?mensaje=${encodeURIComponent(msg)}`)
-                .then(response => response.text()) // Capturamos la respuesta del backend
-                .then(mensajeBackend => {
-                    mostrarMensaje('alertaTicket', mensajeBackend);
+                .then(r => r.text())
+                .then(msgServidor => {
+                    mostrarMensaje('alertaTicket', msgServidor);
                     document.getElementById('ticketMsg').value = '';
                     actualizarTodo();
-                });
+                }).catch(() => mostrarMensaje('alertaTicket', 'Error al ingresar vehículo.'));
         }
 
-        // --- FUNCIONES DE POLLING (TIEMPO REAL) ---
-
         function actualizarChat() {
-            fetch('/estado-chat')
-                .then(r => r.json())
-                .then(data => {
-                    document.getElementById('agenteStatus').innerHTML = `<b>Agente:</b> ${data.estadoAgente}`;
+            fetch('/estado-chat').then(r => r.json()).then(data => {
+                const iconoAgente = data.estadoAgente.includes("Atendiendo") ? '<i class="fa-solid fa-headset text-indigo-400"></i>' : '<i class="fa-solid fa-mug-hot text-slate-500"></i>';
+                document.getElementById('agenteStatus').innerHTML = `${iconoAgente} <b>Asesor:</b> ${data.estadoAgente}`;
 
-                    const lista = document.getElementById('listaSillas');
-                    lista.innerHTML = '';
+                const lista = document.getElementById('listaSillas');
+                lista.innerHTML = '';
+                let sillasOcupadas = data.sillasTotales - data.sillasLibres;
 
-                    let sillasOcupadas = data.sillasTotales - data.sillasLibres;
-
-                    // Dibujamos las sillas ocupadas
-                    for (let i = 0; i < sillasOcupadas; i++) {
-                        lista.innerHTML += `<li>🪑 Silla ${i + 1}: <span class="silla-ocupada">Ocupada (Esperando)</span></li>`;
-                    }
-                    // Dibujamos las sillas vacías
-                    for (let i = sillasOcupadas; i < data.sillasTotales; i++) {
-                        lista.innerHTML += `<li>🪑 Silla ${i + 1}: <span class="silla-vacia">Vacía</span></li>`;
-                    }
-                });
+                for (let i = 0; i < sillasOcupadas; i++) {
+                    lista.innerHTML += `<li class="text-sm bg-slate-800 border border-slate-700 p-2 rounded flex items-center text-red-300"><i class="fa-solid fa-user-clock mr-3 text-red-500"></i> Cliente en espera</li>`;
+                }
+                for (let i = sillasOcupadas; i < data.sillasTotales; i++) {
+                    lista.innerHTML += `<li class="text-sm bg-slate-800/50 border border-slate-700/50 border-dashed p-2 rounded flex items-center text-emerald-400/70"><i class="fa-solid fa-chair mr-3"></i> Silla vacía</li>`;
+                }
+            }).catch(e => console.log(e));
         }
 
         function actualizarTickets() {
-            fetch('/estado-tickets')
-                .then(r => r.json())
-                .then(data => {
-                    document.getElementById('backendStatus').innerHTML = `<b>Consumidor:</b> ${data.estadoConsumidor}`;
-                    document.getElementById('espacioCola').innerText = data.espacioDisponible;
+            fetch('/estado-tickets').then(r => r.json()).then(data => {
+                const iconoConsumidor = data.estadoConsumidor.includes("Procesando") ? '<i class="fa-solid fa-gear fa-spin text-blue-400 mr-2"></i>' : '<i class="fa-solid fa-wrench text-slate-500 mr-2"></i>';
+                document.getElementById('backendStatus').innerHTML = `${iconoConsumidor} <b>Mecánico Base:</b> ${data.estadoConsumidor}`;
+                document.getElementById('espacioCola').innerText = data.espacioDisponible;
 
-                    const lista = document.getElementById('listaTickets');
-                    lista.innerHTML = '';
+                const barra = document.getElementById('barraCola');
+                const ocupados = 5 - data.espacioDisponible; // Asumiendo max 5
+                barra.value = ocupados;
+                if (ocupados === 5) barra.classList.add('saturado'); else barra.classList.remove('saturado');
 
-                    if (data.ticketsEnCola.length === 0) {
-                        lista.innerHTML = '<li><i>Cola vacía</i></li>';
-                    } else {
-                        data.ticketsEnCola.forEach(ticket => {
-                            lista.innerHTML += `<li class="ticket-item">🎫 ${ticket}</li>`;
-                        });
-                    }
-                });
+                const lista = document.getElementById('listaTickets');
+                lista.innerHTML = '';
+                if (data.ticketsEnCola.length === 0) {
+                    lista.innerHTML = '<li class="text-sm text-slate-500 italic py-2">Taller despejado. Sin órdenes pendientes.</li>';
+                } else {
+                    data.ticketsEnCola.forEach(ticket => {
+                        lista.innerHTML += `<li class="text-sm bg-slate-800 border-l-4 border-blue-500 p-2 rounded shadow-sm text-slate-300"><i class="fa-solid fa-car-side text-slate-500 mr-2"></i> ${ticket}</li>`;
+                    });
+                }
+            }).catch(e => console.log(e));
         }
 
         function actualizarExpertos() {
-            fetch('/expertos')
-                .then(r => r.json())
-                .then(data => {
-                    const lista = document.getElementById('listaExpertos');
-                    lista.innerHTML = '';
-                    data.forEach(estado => {
-                        lista.innerHTML += `<li>${estado}</li>`;
-                    });
+            fetch('/expertos').then(r => r.json()).then(data => {
+                const grid = document.getElementById('gridExpertos');
+                grid.innerHTML = '';
+
+                data.forEach((estadoString, index) => {
+                    // Limpiar el string del backend para la UI
+                    let textoEstado = estadoString.split(": ")[1] || estadoString;
+                    let colorBorde = "border-slate-700";
+                    let icono = '<i class="fa-solid fa-user-tie text-slate-400 text-2xl"></i>';
+
+                    if (textoEstado.includes("Pensando")) {
+                        colorBorde = "border-yellow-500/50";
+                        icono = '<i class="fa-solid fa-brain text-yellow-500 text-2xl animate-pulse"></i>';
+                        textoEstado = "Analizando diagnóstico eléctrico...";
+                    } else if (textoEstado.includes("Resolviendo")) {
+                        colorBorde = "border-emerald-500/50";
+                        icono = '<i class="fa-solid fa-screwdriver-wrench text-emerald-500 text-2xl"></i>';
+                        textoEstado = "Trabajando con Elevador y Escáner";
+                    } else if (textoEstado.includes("Esperando")) {
+                        colorBorde = "border-red-500/30";
+                        icono = '<i class="fa-solid fa-hourglass-half text-red-400 text-2xl"></i>';
+                        textoEstado = "Esperando herramientas compartidas";
+                    }
+
+                    grid.innerHTML += `
+                        <div class="bg-slate-900/80 border ${colorBorde} rounded-lg p-4 flex flex-col items-center text-center transition-colors">
+                            <div class="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center mb-3 shadow-inner">
+                                ${icono}
+                            </div>
+                            <h3 class="text-slate-200 font-bold text-sm mb-1">Mecánico Senior ${index + 1}</h3>
+                            <p class="text-xs text-slate-400">${textoEstado}</p>
+                        </div>
+                    `;
                 });
+            }).catch(e => console.log(e));
         }
 
-        // Agrupamos todas las actualizaciones
         function actualizarTodo() {
             actualizarChat();
             actualizarTickets();
             actualizarExpertos();
         }
 
-        // Llama a todo cada 1 segundo
         setInterval(actualizarTodo, 1000);
-        actualizarTodo(); // Primera llamada inmediata
+        actualizarTodo();
     </script>
 </body>
 
