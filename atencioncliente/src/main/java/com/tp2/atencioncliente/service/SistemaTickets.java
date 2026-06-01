@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class SistemaTickets {
+    
     private final BlockingQueue<String> colaTickets = new ArrayBlockingQueue<>(5);
     
     // Estado del trabajador de tickets

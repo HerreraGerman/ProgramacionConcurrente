@@ -13,9 +13,10 @@ import com.tp2.atencioncliente.service.SoporteLiveChat;
 @RestController
 public class SoporteController {
 
+    // Inyectamos los servicios que el controlador va a utilizar
     private final SoporteLiveChat liveChat;
     private final SistemaTickets sistemaTickets;
-    private final ResolucionCompleja resolucionCompleja; // <-- Declaramos la variable
+    private final ResolucionCompleja resolucionCompleja;
 
     // Añadimos resolucionCompleja al constructor para que Spring la inyecte de forma automática
     public SoporteController(SoporteLiveChat liveChat, SistemaTickets sistemaTickets, ResolucionCompleja resolucionCompleja) {
